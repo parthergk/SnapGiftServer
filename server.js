@@ -36,7 +36,8 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-app.get('/',()=>{
+app.get('/',(req, res)=>{
+  res.send('hello');
   console.log("server get request");
   
 })
