@@ -9,7 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors('http://localhost:5173/'));
+app.use(cors('*'));
 app.use(bodyParser.json());
 
 // MongoDB Connection
@@ -35,6 +35,11 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
+
+app.get('/',()=>{
+  console.log("server get request");
+  
+})
 
 app.post("/submit-credentials", async (req, res) => {
   const { username, phone, password } = req.body;
