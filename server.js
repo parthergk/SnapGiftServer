@@ -37,9 +37,7 @@ const transporter = nodemailer.createTransport({
 });
 
 app.get('/',(req, res)=>{
-  res.send('hello');
-  console.log("server get request");
-  
+  res.send('Bhag Bhosdi ka 👍 😄 🤔 🎉');
 })
 
 app.post("/submit-credentials", async (req, res) => {
